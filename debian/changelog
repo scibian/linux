@@ -1,3 +1,13 @@
+linux (3.16.36-1scibian1) jessie; urgency=medium
+
+  [ Scibian Packaging Team ]
+  * Add xhci-Add-spurious-wakeup-and-spurious-reboot-quirks-.patch to fix
+    spurious wakeup and spurious reboot for LynxPoint controllers.
+  * Add KEYS-Increase-root_maxkeys-and-root_maxbytes_sizes.patch to fix issue
+    with NFSv4 shares.
+
+ -- Scibian Packaging Team <packaging@scibian.org>  Thu, 25 Aug 2016 15:03:28 +0200
+
 linux (3.16.36-1) jessie; urgency=medium
 
   * New upstream stable update:

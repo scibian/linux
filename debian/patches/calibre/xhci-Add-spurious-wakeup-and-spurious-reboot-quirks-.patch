@@ -1,0 +1,73 @@
+Forwarded: https://bugzilla.kernel.org/show_bug.cgi?id=66171#c130
+From 482911211b6e576c07dbaabcc9d0c88eb6c0d52a Mon Sep 17 00:00:00 2001
+From: Scibian Packaging Team <packaging@scibian.org>
+Date: Thu, 25 Aug 2016 10:29:05 +0200
+Subject: xhci: Add spurious wakeup and spurious reboot quirks for LynxPoint
+ controllers
+
+The spurious wakeup quirk was first introduced for LynxPoint and LynxPoint-LP
+controllers. See:
+
+commit 638298dc66ea ("xhci: Fix spurious wakeups after S5 on Haswell")
+
+It was then limited to HP machines. See:
+
+commit 6962d914f317 ("xhci: Limit the spurious wakeup fix only to HP
+machines")
+
+Then the spurious reboot quirk was introduced for LynxPoint and LynxPoint-LP
+controllers. See:
+
+commit c09ec25d3684 ("xhci: Switch Intel Lynx Point ports to EHCI on
+shutdown.")
+
+At that time spurious wakeup and spurious reboot problems were probably fixed
+for HP machines.
+
+Later on the spurious reboot quirk was limited to LynxPoint-LP controllers
+which seems to be the point where the spurious reboot problem was reintroduced
+on HP machines having non-LP LynxPoint controllers. See:
+
+commit 0a939993bff1 ("xhci: Switch only Intel Lynx Point-LP ports to EHCI on
+shutdown.")
+
+The spurious wakeup quirk was then completely removed (it was limited to HP
+machines) and finally reintroduced for all machines having LynxPoint-LP
+controllers. See:
+
+commit b45abacde3d5 ("xhci: no switching back on non-ULT Haswell")
+
+and:
+
+commit fd7cd061adcf ("xhci: Add spurious wakeup quirk for LynxPoint-LP
+controllers")
+
+To conclude, this patch reintroduces spurious wakeup and spurious reboot
+quirks for non-LP LynxPoint controllers. This seems to fix spurious wakeup and
+spurious reboot problems on HP machines having non-LP LynxPoint controllers.
+Maybe these quirks should be limited to certain machine vendors (at least HP
+and Dell seem to be concerned:
+https://bugzilla.kernel.org/show_bug.cgi?id=66171).
+
+Signed-off-by: Florian Gillot <florian-externe.gillot@edf.fr>
+---
+ drivers/usb/host/xhci-pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index 4fd041b..11b6d96 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -132,7 +132,8 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 		xhci->quirks |= XHCI_SPURIOUS_REBOOT;
+ 	}
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+-		pdev->device == PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_XHCI) {
++		(pdev->device == PCI_DEVICE_ID_INTEL_LYNXPOINT_XHCI ||
++		 pdev->device == PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_XHCI)) {
+ 		xhci->quirks |= XHCI_SPURIOUS_REBOOT;
+ 		xhci->quirks |= XHCI_SPURIOUS_WAKEUP;
+ 	}
+-- 
+2.1.4
+
